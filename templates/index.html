@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP3 Downloader - High Quality Music Downloads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .platform-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .platform-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .download-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(238, 90, 36, 0.4);
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        
+        .bounce {
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                transform: translate3d(0, -30px, 0);
+            }
+            70% {
+                transform: translate3d(0, -15px, 0);
+            }
+            90% {
+                transform: translate3d(0, -4px, 0);
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">
+                <i class="fas fa-music mr-3"></i>
+                MP3 Downloader
+            </h1>
+            <p class="text-xl text-white opacity-90">Download high-quality music from your favorite platforms</p>
+        </div>
+        
+        <!-- Supported Platforms -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-semibold text-white text-center mb-6">Supported Platforms</h2>
+            <div class="flex flex-wrap justify-center gap-4">
+                <div class="platform-icon glass-effect rounded-lg p-4 text-white text-center">
+                    <i class="fab fa-spotify text-3xl mb-2 text-green-400"></i>
+                    <p class="text-sm">Spotify</p>
+                </div>
+                <div class="platform-icon glass-effect rounded-lg p-4 text-white text-center">
+                    <i class="fab fa-apple text-3xl mb-2"></i>
+                    <p class="text-sm">Apple Music</p>
+                </div>
+                <div class="platform-icon glass-effect rounded-lg p-4 text-white text-center">
+                    <i class="fas fa-music text-3xl mb-2 text-orange-400"></i>
+                    <p class="text-sm">JioSaavn</p>
+                </div>
+                <div class="platform-icon glass-effect rounded-lg p-4 text-white text-center">
+                    <i class="fab fa-youtube text-3xl mb-2 text-red-400"></i>
+                    <p class="text-sm">YouTube Music</p>
+                </div>
+                <div class="platform-icon glass-effect rounded-lg p-4 text-white text-center">
+                    <i class="fab fa-soundcloud text-3xl mb-2 text-orange-500"></i>
+                    <p class="text-sm">SoundCloud</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Download Section -->
+        <div class="max-w-2xl mx-auto">
+            <div class="glass-effect rounded-2xl p-8 shadow-2xl">
+                <div class="mb-6">
+                    <label for="url-input" class="block text-white text-lg font-medium mb-3">
+                        <i class="fas fa-link mr-2"></i>
+                        Paste your music URL here
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="url" 
+                            id="url-input" 
+                            placeholder="https://open.spotify.com/track/... or any supported platform URL"
+                            class="w-full px-4 py-4 rounded-lg border-0 bg-white bg-opacity-20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 text-lg"
+                        >
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <i class="fas fa-paste text-gray-300 cursor-pointer hover:text-white transition-colors" onclick="pasteFromClipboard()"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <button 
+                    id="download-btn" 
+                    onclick="startDownload()" 
+                    class="download-btn w-full py-4 rounded-lg text-white font-semibold text-lg shadow-lg"
+                >
+                    <i class="fas fa-download mr-2"></i>
+                    Download MP3
+                </button>
+                
+                <!-- Progress Section -->
+                <div id="progress-section" class="mt-6 hidden">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-white font-medium" id="progress-text">Preparing download...</span>
+                            <span class="text-white" id="progress-percent">0%</span>
+                        </div>
+                        <div class="w-full bg-white bg-opacity-20 rounded-full h-3">
+                            <div id="progress-bar" class="progress-bar bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="download-info" class="text-white text-sm opacity-75">
+                        <div id="speed-info"></div>
+                        <div id="eta-info"></div>
+                    </div>
+                </div>
+                
+                <!-- Status Messages -->
+                <div id="status-message" class="mt-4 hidden">
+                    <div id="success-message" class="bg-green-500 bg-opacity-20 border border-green-400 text-green-100 px-4 py-3 rounded-lg hidden">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span id="success-text"></span>
+                    </div>
+                    
+                    <div id="error-message" class="bg-red-500 bg-opacity-20 border border-red-400 text-red-100 px-4 py-3 rounded-lg hidden">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        <span id="error-text"></span>
+                    </div>
+                </div>
+                
+                <!-- Download Button -->
+                <div id="download-ready" class="mt-4 hidden">
+                    <button 
+                        id="final-download-btn" 
+                        class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors"
+                    >
+                        <i class="fas fa-download mr-2 bounce"></i>
+                        Download Your MP3
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="mt-16 max-w-4xl mx-auto">
+            <h2 class="text-3xl font-bold text-white text-center mb-8">Why Choose Our Downloader?</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass-effect rounded-lg p-6 text-center">
+                    <i class="fas fa-bolt text-4xl text-yellow-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-white mb-2">Lightning Fast</h3>
+                    <p class="text-gray-200">Download your favorite tracks in seconds with our optimized servers</p>
+                </div>
+                
+                <div class="glass-effect rounded-lg p-6 text-center">
+                    <i class="fas fa-hd-video text-4xl text-blue-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-white mb-2">High Quality</h3>
+                    <p class="text-gray-200">Get 320kbps MP3 files with embedded metadata and album art</p>
+                </div>
+                
+                <div class="glass-effect rounded-lg p-6 text-center">
+                    <i class="fas fa-shield-alt text-4xl text-green-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-white mb-2">Safe & Private</h3>
+                    <p class="text-gray-200">No registration required. Your downloads are private and secure</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-16 text-white opacity-75">
+            <p>&copy; 2024 MP3 Downloader. For personal use only.</p>
+        </div>
+    </div>
+    
+    <script>
+        let currentDownloadId = null;
+        let progressInterval = null;
+        
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('url-input').value = text;
+            } catch (err) {
+                console.log('Failed to read clipboard');
+            }
+        }
+        
+        async function startDownload() {
+            const urlInput = document.getElementById('url-input');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a valid URL');
+                return;
+            }
+            
+            // Reset UI
+            hideMessages();
+            showProgress();
+            setDownloadButtonState(true);
+            
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Download failed');
+                }
+                
+                currentDownloadId = data.download_id;
+                updateProgressText(`Detected ${data.platform} link. Starting download...`);
+                
+                // Start polling for progress
+                progressInterval = setInterval(checkProgress, 1000);
+                
+            } catch (error) {
+                showError(error.message);
+                hideProgress();
+                setDownloadButtonState(false);
+            }
+        }
+        
+        async function checkProgress() {
+            if (!currentDownloadId) return;
+            
+            try {
+                const response = await fetch(`/progress/${currentDownloadId}`);
+                const progress = await response.json();
+                
+                updateProgress(progress);
+                
+                if (progress.status === 'completed') {
+                    clearInterval(progressInterval);
+                    showDownloadReady();
+                } else if (progress.status === 'error') {
+                    clearInterval(progressInterval);
+                    showError(progress.error || 'Download failed');
+                    hideProgress();
+                    setDownloadButtonState(false);
+                }
+            } catch (error) {
+                console.error('Error checking progress:', error);
+            }
+        }
+        
+        function updateProgress(progress) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            const progressText = document.getElementById('progress-text');
+            const speedInfo = document.getElementById('speed-info');
+            const etaInfo = document.getElementById('eta-info');
+            
+            progressBar.style.width = `${progress.percent}%`;
+            progressPercent.textContent = `${Math.round(progress.percent)}%`;
+            
+            switch (progress.status) {
+                case 'starting':
+                    progressText.textContent = 'Initializing download...';
+                    break;
+                case 'downloading':
+                    progressText.textContent = 'Downloading audio...';
+                    if (progress.speed) {
+                        speedInfo.textContent = `Speed: ${formatSpeed(progress.speed)}`;
+                    }
+                    if (progress.eta) {
+                        etaInfo.textContent = `ETA: ${formatTime(progress.eta)}`;
+                    }
+                    break;
+                case 'finished':
+                    progressText.textContent = 'Processing and adding metadata...';
+                    break;
+                case 'completed':
+                    progressText.textContent = 'Download completed!';
+                    break;
+            }
+        }
+        
+        function showDownloadReady() {
+            hideProgress();
+            showSuccess('Your MP3 is ready for download!');
+            
+            const downloadReady = document.getElementById('download-ready');
+            const finalDownloadBtn = document.getElementById('final-download-btn');
+            
+            downloadReady.classList.remove('hidden');
+            
+            finalDownloadBtn.onclick = () => {
+                window.location.href = `/download_file/${currentDownloadId}`;
+                
+                // Reset after download
+                setTimeout(() => {
+                    resetUI();
+                }, 2000);
+            };
+        }
+        
+        function showProgress() {
+            document.getElementById('progress-section').classList.remove('hidden');
+        }
+        
+        function hideProgress() {
+            document.getElementById('progress-section').classList.add('hidden');
+        }
+        
+        function showSuccess(message) {
+            const statusMessage = document.getElementById('status-message');
+            const successMessage = document.getElementById('success-message');
+            const successText = document.getElementById('success-text');
+            
+            hideMessages();
+            statusMessage.classList.remove('hidden');
+            successMessage.classList.remove('hidden');
+            successText.textContent = message;
+        }
+        
+        function showError(message) {
+            const statusMessage = document.getElementById('status-message');
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            hideMessages();
+            statusMessage.classList.remove('hidden');
+            errorMessage.classList.remove('hidden');
+            errorText.textContent = message;
+        }
+        
+        function hideMessages() {
+            document.getElementById('status-message').classList.add('hidden');
+            document.getElementById('success-message').classList.add('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('download-ready').classList.add('hidden');
+        }
+        
+        function setDownloadButtonState(disabled) {
+            const btn = document.getElementById('download-btn');
+            btn.disabled = disabled;
+            
+            if (disabled) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+            } else {
+                btn.innerHTML = '<i class="fas fa-download mr-2"></i>Download MP3';
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }
+        }
+        
+        function resetUI() {
+            hideMessages();
+            hideProgress();
+            setDownloadButtonState(false);
+            document.getElementById('url-input').value = '';
+            currentDownloadId = null;
+            
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+        
+        function updateProgressText(text) {
+            document.getElementById('progress-text').textContent = text;
+        }
+        
+        function formatSpeed(bytesPerSecond) {
+            if (!bytesPerSecond) return 'Unknown';
+            
+            const mbps = bytesPerSecond / (1024 * 1024);
+            if (mbps >= 1) {
+                return `${mbps.toFixed(1)} MB/s`;
+            } else {
+                const kbps = bytesPerSecond / 1024;
+                return `${kbps.toFixed(1)} KB/s`;
+            }
+        }
+        
+        function formatTime(seconds) {
+            if (!seconds) return 'Unknown';
+            
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Allow Enter key to start download
+        document.getElementById('url-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startDownload();
+            }
+        });
+    </script>
+</body>
+</html>
