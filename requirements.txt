@@ -1,5 +1,5 @@
 Flask==2.3.3
-yt-dlp==2023.10.13
+yt-dlp>=2024.4.9
 mutagen==1.47.0
 requests==2.31.0
 FFmpeg-python==0.2.0

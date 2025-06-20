@@ -15,12 +15,13 @@ TEMP_DIR = None  # Use None for system temp directory
 CLEANUP_DELAY = 5  # Seconds to wait before cleaning up downloaded files
 MAX_FILE_SIZE = 100  # Maximum file size in MB (0 for no limit)
 
-# Platform Settings
+# Enabled Platforms
 ENABLE_SPOTIFY = True
 ENABLE_APPLE_MUSIC = True
 ENABLE_JIOSAAVN = True
 ENABLE_YOUTUBE = True
 ENABLE_SOUNDCLOUD = True
+ENABLE_DEEZER = True
 
 # Advanced Settings
 USE_PROXY = False
